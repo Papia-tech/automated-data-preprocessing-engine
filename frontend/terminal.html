@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/terminal.css">
+    <title>CleanCraft - Terminal Sandbox</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #030710;
+            color: #a3c5ed;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- LIGHT MODE OVERRIDES --- */
+        body.light-mode {
+            background: #f4f7fc;
+            color: #2b3a51;
+        }
+
+        body.light-mode::before {
+            background:
+                radial-gradient(circle at top left, rgba(70, 163, 255, 0.12), transparent 45%),
+                radial-gradient(circle at bottom right, rgba(37, 117, 252, 0.08), transparent 45%);
+        }
+
+        /* --- CUSTOM THEME MATCHED CYBER BLUE SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #030710;
+        }
+
+        body.light-mode ::-webkit-scrollbar-track {
+            background: #f4f7fc;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(70, 163, 255, 0.25);
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #46a3ff;
+        }
+
+        /* Firefox Support */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(70, 163, 255, 0.25) #030710;
+        }
+
+        body.light-mode * {
+            scrollbar-color: rgba(70, 163, 255, 0.3) #f4f7fc;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at top left, rgba(70, 163, 255, 0.18), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(37, 117, 252, 0.15), transparent 35%);
+            z-index: -1;
+            transition: background 0.3s ease;
+        }
+
+        /* --- MODERN FLOATING NAVBAR --- */
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 8%;
+            z-index: 100;
+            transition: padding 0.3s ease;
+        }
+
+        .nav-wrapper.scrolled {
+            padding: 12px 8%;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+            background: rgba(10, 15, 28, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        body.light-mode nav {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-wrapper.scrolled nav {
+            background: rgba(4, 9, 20, 0.85);
+            border-color: rgba(70, 163, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        body.light-mode .nav-wrapper.scrolled nav {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(70, 163, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #a3c5ed;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        body.light-mode .logo {
+            color: #1e293b;
+        }
+
+        .logo span {
+            color: #46a3ff;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #aaaaaa;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+
+        body.light-mode .nav-links a {
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        body.light-mode .nav-links a:hover {
+            color: #1e293b;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #46a3ff;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 50%;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            color: #46a3ff;
+            background: rgba(70, 163, 255, 0.1);
+        }
+
+        body.light-mode .theme-toggle-btn {
+            color: #64748b;
+        }
+
+        /* Premium CTA Action Button */
+        .nav-btn {
+            background: rgba(70, 163, 255, 0.06);
+            color: #46a3ff !important;
+            border: 1px solid rgba(70, 163, 255, 0.25);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .nav-btn:hover {
+            background: #46a3ff !important;
+            color: #030710 !important;
+            box-shadow: 0 0 15px rgba(70, 163, 255, 0.3);
+        }
+
+        body.light-mode .nav-btn:hover {
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(70, 163, 255, 0.2);
+        }
+
+        /* Hero Section Base */
+        .hero {
+            min-height: 95vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-direction: column;
+            padding: 160px 20px 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 54px;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        body.light-mode .hero h1 {
+            color: #0f172a;
+        }
+
+        .hero h1 span {
+            color: #46a3ff;
+        }
+
+        .hero p {
+            max-width: 700px;
+            color: #b5c1d6;
+            line-height: 1.8;
+            font-size: 18px;
+            margin-bottom: 45px;
+        }
+
+        body.light-mode .hero p {
+            color: #475569;
+        }
+
+        /* Terminal System Layout */
+        .terminal {
+            width: 90%;
+            max-width: 850px;
+            background: #070d1a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(70, 163, 255, 0.15);
+            box-shadow: 0 0 35px rgba(70, 163, 255, 0.05);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.light-mode .terminal {
+            background: #ffffff;
+            border-color: rgba(70, 163, 255, 0.25);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        .terminal-header {
+            background: #0d1527;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        body.light-mode .terminal-header {
+            background: #f8fafc;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #46a3ff;
+        }
+
+        .terminal-body {
+            min-height: 360px;
+            padding: 40px;
+            text-align: left;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* --- PRE-UPLOAD DROPZONE TARGET VIEW --- */
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(70, 163, 255, 0.2);
+            border-radius: 8px;
+            padding: 50px 20px;
+            cursor: pointer;
+            background: rgba(4, 9, 20, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .upload-container {
+            background: rgba(248, 250, 252, 0.6);
+            border-color: rgba(70, 163, 255, 0.3);
+        }
+
+        .upload-container:hover {
+            border-color: #46a3ff;
+            background: rgba(70, 163, 255, 0.03);
+        }
+
+        .upload-icon {
+            color: #46a3ff;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .upload-container:hover .upload-icon {
+            transform: translateY(-4px);
+        }
+
+        .upload-btn {
+            background: rgba(70, 163, 255, 0.1);
+            color: #46a3ff;
+            border: 1px solid rgba(70, 163, 255, 0.3);
+            padding: 12px 28px;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-container:hover .upload-btn {
+            background: #46a3ff;
+            color: #030710;
+            border-color: #46a3ff;
+            box-shadow: 0 0 15px rgba(70, 163, 255, 0.2);
+        }
+
+        body.light-mode .upload-container:hover .upload-btn {
+            color: #ffffff;
+        }
+
+        .upload-text {
+            font-size: 15px;
+            color: #7a869a;
+        }
+
+        body.light-mode .upload-text {
+            color: #64748b;
+        }
+
+        /* --- POST-UPLOAD PROCESSING ENGINE VIEW --- */
+        .logs {
+            display: none;
+            /* Initially hidden until file selection occurs */
+            width: 100%;
+        }
+
+        .logs p {
+            color: #46a3ff;
+            margin: 14px 0;
+            font-family: monospace;
+            font-size: 15px;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: all 0.2s ease;
+        }
+
+        body.light-mode .logs p {
+            color: #0284c7;
+        }
+
+        .logs p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .terminal-action-wrapper {
+            margin-top: 30px;
+            border-top: 1px solid rgba(70, 163, 255, 0.1);
+            padding-top: 25px;
+            display: none;
+            /* Shows up at completion sequence */
+        }
+
+        body.light-mode .terminal-action-wrapper {
+            border-top-color: rgba(70, 163, 255, 0.15);
+        }
+
+        .terminal-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #46a3ff !important;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        body.light-mode .terminal-link {
+            color: #0284c7 !important;
+        }
+
+        .terminal-link:hover {
+            color: #82c2ff !important;
+        }
+
+        body.light-mode .terminal-link:hover {
+            color: #0369a1 !important;
+        }
+
+        .terminal-link i {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .terminal-link:hover i {
+            transform: translateX(4px);
+        }
+
+        /* Blinking Cursor Styling */
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- PREMIUM SOLID BLACK FOOTER --- */
+        .custom-footer {
+            background: #02050c;
+            padding: 80px 8% 40px 8%;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.01);
+            transition: background 0.3s;
+        }
+
+        body.light-mode .custom-footer {
+            background: #0b1322;
+        }
+
+        .footer-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: 40px;
+            padding-bottom: 60px;
+        }
+
+        .footer-info-col {
+            padding-right: 40px;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            margin-bottom: 18px;
+        }
+
+        .footer-desc {
+            color: #6d798e;
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        body.light-mode .footer-desc {
+            color: #94a3b8;
+        }
+
+        .footer-links-col h4 {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .footer-links-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links-col ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links-col ul li a {
+            color: #6d798e;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        body.light-mode .footer-links-col ul li a {
+            color: #94a3b8;
+        }
+
+        .footer-links-col ul li a:hover {
+            color: #46a3ff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #525d70;
+            font-size: 13px;
+        }
+
+        body.light-mode .footer-bottom {
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        .footer-meta-right a {
+            color: #525d70;
+            text-decoration: none;
+            margin-left: 4px;
+            transition: color 0.2s ease;
+        }
+
+        body.light-mode .footer-meta-right a {
+            color: #94a3b8;
+        }
+
+        .footer-meta-right a:hover {
+            color: #ffffff;
+        }
+
+        .footer-giant-text {
+            font-size: clamp(80px, 15vw, 210px);
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: -0.04em;
+            line-height: 0.8;
+            margin-top: 40px;
+            user-select: none;
+            pointer-events: none;
+            background: linear-gradient(to bottom, #46a3ff 0%, #0d2a5c 40%, transparent 95%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.5;
+        }
+
+        /* Responsive Modifiers */
+        @media(max-width:992px) {
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px 20px;
+            }
+
+            .footer-info-col {
+                grid-column: span 2;
+            }
+        }
+
+        @media(max-width:768px) {
+            .nav-wrapper {
+                padding: 12px 20px;
+            }
+
+            nav {
+                padding: 12px 20px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .terminal-body {
+                padding: 25px;
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-info-col {
+                grid-column: span 1;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-wrapper" id="navWrapper">
+        <nav>
+            <a href="index.html" class="logo">
+                <span>#</span>CleanCraft<span>.</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#">Docs</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+                    <i data-lucide="sun" id="themeIcon" style="width: 20px; height: 20px;"></i>
+                </button>
+                <a href="#" class="nav-btn">Try Now</a>
+            </div>
+        </nav>
+    </div>
+
+    <section class="hero">
+        <h1>Data Pipeline <span>Sandbox</span></h1>
+        <p>Drop your file structures inside the production compiler below to initiate automated high-dimensional
+            cleaning strategies metrics execution modules.</p>
+
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div class="terminal-body" id="terminalBody">
+
+                <div class="upload-container" id="uploadZone">
+                    <i data-lucide="upload-cloud" class="upload-icon"></i>
+                    <div class="upload-text">Drag & drop your dataset here or click to browse</div>
+                    <div style="font-size: 12px; color: #5b677a; margin-top: 5px;">Supports CSV, JSON, XLS, Parquet up
+                        to 50GB</div>
+                    <button class="upload-btn">Upload Dataset</button>
+                    <input type="file" id="fileInput" style="display: none;" accept=".csv,.json,.xlsx,.xls,.parquet">
+                </div>
+
+                <div class="logs" id="logsContainer">
+                    <p>&gt; File buffer assigned successfully. Initializing sandbox context...</p>
+                    <p>&gt; Commencing neural topological scanning structure analysis...</p>
+                    <p>✓ Matrix Mapping: Detecting hidden missing variance records completed.</p>
+                    <p>✓ Corruption Core: Executing strict deduplication filters logic rules.</p>
+                    <p>✓ Outlier Engine: Local isolation forest boundary vectors tracking confirmed.</p>
+                    <p>✓ Model Assembly: Compiling automated vector representation values mapping.</p>
+                    <p>✓ Pipeline Complete: Production targets safely structured <span class="cursor">|</span></p>
+
+                    <div class="terminal-action-wrapper" id="actionWrapper">
+                        <a href="#" class="terminal-link">
+                            &gt; Export machine-ready dataset now <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="custom-footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-info-col">
+                    <div class="footer-logo">CleanCraft</div>
+                    <p class="footer-desc">An data automation system specializing in automated cleanup, normalization,
+                        and features extraction.</p>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Quick link</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">Contact us</a></li>
+                        <li><a href="#">License</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Service</a></li>
+                        <li><a href="#">Service details</a></li>
+                        <li><a href="#">Project</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Others</h4>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">404</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-col">
+                    <h4>Social</h4>
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Twitter</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>&copy; 2026 CleanCraft. All rights reserved.</div>
+                <div class="footer-meta-right">Design by Grabui — Powered by <a href="#">CleanCraft Team</a></div>
+            </div>
+            <div class="footer-giant-text">CleanCraft</div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Structural Icons Graphics Vector Mapping
+        lucide.createIcons();
+
+        // Scroll Sticky Tracking Header Controller Engine
+        const navWrapper = document.getElementById('navWrapper');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navWrapper.classList.add('scrolled');
+            } else {
+                navWrapper.classList.remove('scrolled');
+            }
+        });
+
+        // Theme Custom Interactivity Logic Engine Switch
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+            lucide.createIcons();
+        });
+
+        // Terminal Interactivity Drop File Action Framework
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const logsContainer = document.getElementById('logsContainer');
+        const actionWrapper = document.getElementById('actionWrapper');
+        const logLines = logsContainer.querySelectorAll('p');
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', handleFileProcessing);
+
+        // Dynamic processing simulator engine sequence trigger tracking
+        function handleFileProcessing() {
+            uploadZone.style.display = 'none';
+            logsContainer.style.display = 'block';
+
+            let currentLineIndex = 0;
+
+            function printNextLog() {
+                if (currentLineIndex < logLines.length) {
+                    logLines[currentLineIndex].classList.add('visible');
+                    currentLineIndex++;
+                    // Simulates step-by-step terminal engine logs processing timeline delay
+                    setTimeout(printNextLog, 750);
+                } else {
+                    // Show blue dynamic call to action at terminal execution ending index matrix
+                    actionWrapper.style.display = 'block';
+                }
+            }
+            printNextLog();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Select all our essential DOM element interfaces 
+            const fileInput = document.getElementById('fileInput');
+            const uploadZone = document.getElementById('uploadZone');
+            const logsContainer = document.getElementById('logsContainer');
+            const actionWrapper = document.getElementById('actionWrapper');
+
+            // Trigger file selection window click action wrapper
+            uploadZone.addEventListener('click', () => fileInput.click());
+
+            // Catch the dropped or selected file object format matrix 
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Instantly transition the upload container out to expose the terminal logs log window
+                uploadZone.style.display = 'none';
+                logsContainer.innerHTML = '';
+                logsContainer.style.display = 'block';
+
+                // Clear layout state setup messages 
+                appendLog("> Initializing runtime asynchronous sandbox pipeline alignment context...");
+                appendLog(`> Allocating strict network target buffers for raw stream: ${file.name}`);
+
+                // Prepare Multipart Form Data packet compilation
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    appendLog("> Uploading binary dataset records into local FastAPI machine learning engine core...");
+
+                    // Fire request directly to your FastAPI backend clean pipeline route
+                    const response = await fetch("http://127.0.0.1:8000/api/clean", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || "Backend calculation pipeline failure.");
+                    }
+
+                    appendLog("✓ Pipeline Active: Commencing iterative K-Nearest Neighbors matrix imputation mapping...");
+                    appendLog("✓ Anomaly Guard: Neutralizing structural data anomalies via high-dimensional Isolation Forest trees...");
+                    appendLog("✓ Matrix Generation: Production-ready clean array structures compiled successfully.");
+
+                    // Convert the binary stream response from FastAPI into an instantly downloadable file blob block
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+
+                    // Wipe out old temporary terminal link paths if any exist and create a fresh one 
+                    logsContainer.appendChild(actionWrapper);
+                    const exportLink = actionWrapper.querySelector('.terminal-link');
+                    exportLink.href = downloadUrl;
+                    exportLink.download = `cleaned_${file.name}`;
+
+                    // Show the glorious blue clean data download button row inside your terminal setup
+                    actionWrapper.style.display = 'block';
+                    appendLog("✓ Execution Pipeline Finalized: Dataset completely safe for model training vectorization <span class='cursor'>|</span>");
+
+                } catch (error) {
+                    appendLog(`[FATAL EXCEPTION ERROR] Preprocessing routine aborted: ${error.message}`);
+                }
+            });
+        });
+
+        // Programmatic structural helper engine to inject fresh styled clean code tracking strings into our DOM view layout
+        function appendLog(text) {
+            const logsContainer = document.getElementById('logsContainer');
+            const p = document.createElement('p');
+            p.className = 'visible';
+            p.innerHTML = text;
+            logsContainer.appendChild(p);
+        }
+    </script>
+    <script src="js/terminal.js"></script>
+</body>
+
+</html>
