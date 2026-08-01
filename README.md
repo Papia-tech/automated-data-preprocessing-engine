@@ -1,4 +1,4 @@
-# 🚀 PreprocessIQ
+# 🚀 CleanCraft
 
 ### Intelligent Data Cleaning & Preprocessing Platform for Machine Learning
 
